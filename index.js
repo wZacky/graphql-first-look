@@ -1,4 +1,4 @@
-import { gql } from "apollo-server";
+import { gql, UserInputError } from "apollo-server";
 import { ApolloServer } from "apollo-server";
 import { v4 as uuidv4 } from "uuid";
 
@@ -286,6 +286,12 @@ const resolvers = {
   },
   Mutation: {
     addPerson: (root, args) => {
+      if (persons.find(p => p.name === args.name)) {
+        throw new UserInputError('Name must be unique', {
+          invalidArgs: args.name
+        })
+      }
+
       // const {name, phone, website, email, username} = args;
       const person = {...args, id: uuidv4()};
       persons.push(person); // updtate datasource(e.g.: DB) with new person
