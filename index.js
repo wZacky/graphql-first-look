@@ -1,6 +1,7 @@
 import { gql, UserInputError } from "apollo-server";
 import { ApolloServer } from "apollo-server";
 import { v4 as uuidv4 } from "uuid";
+import axios from "axios";
 
 const persons = [
   {
@@ -287,14 +288,17 @@ const typeDefinitions = gql`
 const resolvers = {
   Query: {
     personCount: () => persons.length,
-    allPersons: (root, args) => {
+    allPersons: async (root, args) => {
+      const {data: personsFromRestApi} = await axios.get("http://localhost:3000/persons");
+      console.log(personsFromRestApi);
+
       if (!args.phone) {
-        return persons
+        return personsFromRestApi
       }
 
       const byPhone = person => args.phone === 'YES' ? person.phone : !person.phone;
 
-      return persons.filter(byPhone);
+      return personsFromRestApi.filter(byPhone);
     },
     findPerson: (root, args) => {
       const { name } = args;
