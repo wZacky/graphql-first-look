@@ -1,5 +1,6 @@
-import {gql}from "apollo-server";
+import { gql } from "apollo-server";
 import { ApolloServer } from "apollo-server";
+import { v4 as uuidv4 } from "uuid";
 
 const persons = [
   {
@@ -64,7 +65,6 @@ const persons = [
       }
     },
     "phone": "1-463-123-4447",
-    "website": "ramiro.info",
     "company": {
       "name": "Romaguera-Jacobson",
       "catchPhrase": "Face to face bifurcated interface",
@@ -234,6 +234,11 @@ const persons = [
 ]
 
 // definicion de los tipos de datos
+
+/**
+ * Queries: para extraer datos
+ * Mutations: para cambiar los datos
+ */
 const typeDefinitions = gql`
   type User {
     username: String
@@ -253,6 +258,16 @@ const typeDefinitions = gql`
     allPersons: [Person]!
     findPerson(name: String!): Person
   }
+
+  type Mutation {
+    addPerson(
+      name: String!
+      phone: String
+      website: String
+      email: String!
+      username: String!
+    ): Person
+  }
 `;
 
 // como se resuelven los datos(de que manera se obtienen)
@@ -267,6 +282,14 @@ const resolvers = {
     findPerson: (root, args) => {
       const { name } = args;
       return persons.find(person => person.name === name);
+    }
+  },
+  Mutation: {
+    addPerson: (root, args) => {
+      // const {name, phone, website, email, username} = args;
+      const person = {...args, id: uuidv4()};
+      persons.push(person); // updtate datasource(e.g.: DB) with new person
+      return person;
     }
   },
   Person: {
