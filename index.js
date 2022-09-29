@@ -237,7 +237,7 @@ const persons = [
 
 /**
  * Queries: para extraer datos
- * Mutations: para cambiar los datos
+ * Mutations: para cambiar la data(agregar, editar datos)
  */
 const typeDefinitions = gql`
   enum YesNo {
@@ -271,6 +271,10 @@ const typeDefinitions = gql`
       website: String
       email: String!
       username: String!
+    ): Person
+    editNumber(
+      name: String!
+      phone: String!
     ): Person
   }
 `;
@@ -309,6 +313,19 @@ const resolvers = {
       const person = {...args, id: uuidv4()};
       persons.push(person); // updtate datasource(e.g.: DB) with new person
       return person;
+    },
+    editNumber: (root, args) => {
+      const personIndex = persons.findIndex(p => p.name === args.name)
+
+      if (personIndex === -1) {
+        return null;
+      }
+
+      const person = persons[personIndex];
+      const updatedPerson = {...person, phone: args.phone}
+      persons[personIndex] = updatedPerson;
+
+      return updatedPerson;
     }
   },
   Person: {
